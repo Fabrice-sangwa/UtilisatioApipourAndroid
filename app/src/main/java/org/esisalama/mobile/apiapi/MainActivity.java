@@ -10,6 +10,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView textViewName;
@@ -59,6 +65,43 @@ public class MainActivity extends AppCompatActivity {
 
     private void recupererGitHubUser(int id){
         progressBar.setVisibility(View.VISIBLE);
+
+
+        Retrofit  retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.github.com")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        GitHubUserService userService = retrofit.create(GitHubUserService.class);
+        Call<GitHubUsers> callback = userService.getUser(id);
+
+        callback.enqueue(new Callback<GitHubUsers>() {
+            @Override
+            public void onResponse(Call<GitHubUsers> call, Response<GitHubUsers> response) {
+
+                if(response.isSuccessful()){
+
+                    GitHubUsers user = response.body();
+                    if (user == null){
+                        Toast.makeText(MainActivity.this, "L'utilisateur n'a pas été trouvé", Toast.LENGTH_LONG).show();
+                    }
+                    textViewLogin.setText("Login : " + user.getLogin());
+                    textViewName.setText("Name : " + user.getName());
+                    textViewId.setText("Id : " + user.getId());
+
+                } else {
+                    Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_LONG).show();
+                }
+                progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(Call<GitHubUsers> call, Throwable t) {
+                Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+
+
+
     }
 
 
