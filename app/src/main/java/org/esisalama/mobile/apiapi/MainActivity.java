@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     int id = Integer.parseInt(idText);
                     recupererGitHubUser(id);
+
                 }
             }
         });
